@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Producto;
 use Illuminate\Http\Request;
 
 class ProductoController extends Controller
@@ -12,6 +13,7 @@ class ProductoController extends Controller
     public function index()
     {
         //
+        return response()->json(Producto::all());
     }
 
     /**
@@ -19,7 +21,20 @@ class ProductoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+         //Validación 
+         $request->validate([
+            'nombre_producto'=>'required',
+            'descripcion'=>'nullable',
+            'precio'=>'nullable',
+            'stock'=>'nullable',
+        ]);
+
+        $producto = Producto::create($request->all());
+
+        return response()->json([
+            'mensaje'=> 'Producto creado satisfactoriamente',
+            'producto'=>$producto
+        ],201);
     }
 
     /**
@@ -28,6 +43,15 @@ class ProductoController extends Controller
     public function show(string $id)
     {
         //
+        $producto = Producto::find($id);
+
+        if(!$producto){
+            return response()->json([
+                'mensaje'=>'Producto no encontrado'
+            ], 404);
+        }
+
+        return response()->json($producto, 200);
     }
 
     /**
@@ -36,6 +60,27 @@ class ProductoController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $request->validate([
+            'nombre_producto'=>'required',
+            'descripcion'=>'nullable',
+            'precio'=>'nullable',
+            'stock'=>'nullable',
+        ]);
+
+        $producto = Producto::find($id);
+
+        if(!$producto){
+            return response()->json([
+                'mensaje'=>'Producto no encontrado'
+            ], 404);
+        }
+
+        $producto->update($request->all());
+
+        return response()->json([
+            'mensaje'=> 'Producto actualizado satisfactoriamente',
+            'producto'=>$producto
+        ],201);
     }
 
     /**
@@ -44,5 +89,18 @@ class ProductoController extends Controller
     public function destroy(string $id)
     {
         //
+        $producto = Producto::find($id);
+
+        if(!$producto){
+            return response()->json([
+                'mensaje'=>'Producto no encontrado'
+            ], 404);
+        }
+
+        $producto->delete();
+
+        return response()->json([
+            'mensaje'=>'Producto eliminado satisfactoriamente'
+        ],200);
     }
 }
